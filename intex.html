@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Tienes el Código?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600&display=swap');
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Lexend', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .title {
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #e2f9b8;
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            margin-bottom: 2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .input-box {
+            position: relative;
+            border: 2px solid #3b82f6;
+            width: 280px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 0 auto;
+        }
+
+        /* Decoraciones de las esquinas y bordes similares a la imagen */
+        .corner {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffffff;
+            border-radius: 50%;
+            border: 2px solid #3b82f6;
+        }
+        .top-left { top: -6px; left: -6px; }
+        .top-right { top: -6px; right: -6px; }
+        .bottom-left { bottom: -6px; left: -6px; }
+        .bottom-right { bottom: -6px; right: -6px; }
+
+        .handle {
+            position: absolute;
+            background: #ffffff;
+            border: 2px solid #3b82f6;
+            border-radius: 4px;
+        }
+        .h-top { top: -6px; left: 50%; transform: translateX(-50%); width: 20px; height: 10px; }
+        .h-bottom { bottom: -6px; left: 50%; transform: translateX(-50%); width: 20px; height: 10px; }
+        .h-left { left: -6px; top: 50%; transform: translateY(-50%); width: 10px; height: 20px; }
+        .h-right { right: -6px; top: 50%; transform: translateY(-50%); width: 10px; height: 20px; }
+
+        .rotate-icon {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .digit-dash {
+            width: 40px;
+            height: 4px;
+            background: #d9f99d;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .digit-text {
+            font-size: 3rem;
+            color: #d9f99d;
+            position: absolute;
+            bottom: 20px;
+            font-weight: bold;
+            letter-spacing: 28px;
+            padding-left: 14px;
+            pointer-events: none;
+        }
+
+        .footer-text {
+            margin-top: 2rem;
+            color: #e2f9b8;
+            font-style: italic;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Animaciones */
+        @keyframes flashGreen {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(34, 197, 94, 0.4); }
+        }
+
+        @keyframes flashRed {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(239, 68, 68, 0.4); }
+        }
+
+        .success-flash {
+            animation: flashGreen 0.5s ease-in-out 3;
+        }
+
+        .error-flash {
+            animation: flashRed 0.4s ease-in-out 2;
+        }
+
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .hidden-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 2rem;
+            max-width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .num-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        .num-btn:active {
+            background: #3b82f6;
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="text-center p-4" id="main-container">
+        <h1 class="title">¿Tienes el Código?</h1>
+        <p class="subtitle">Escribe la secuencia en el panel y presiona 'ENTER'.</p>
+
+        <div class="relative mt-12 mb-8">
+            <div id="panel" class="input-box" onclick="focusInput()">
+                <div class="rotate-icon">↻</div>
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+                <div class="handle h-top"></div>
+                <div class="handle h-bottom"></div>
+                <div class="handle h-left"></div>
+                <div class="handle h-right"></div>
+
+                <div id="dashes" class="flex gap-8 mt-12">
+                    <div class="digit-dash"></div>
+                    <div class="digit-dash"></div>
+                    <div class="digit-dash"></div>
+                </div>
+                
+                <div id="display-text" class="digit-text"></div>
+            </div>
+        </div>
+
+        <input type="text" id="code-input" class="hidden-input" maxlength="3" autocomplete="off" inputmode="numeric">
+
+        <p class="footer-text">(Si el panel parpadea en verde, habrás salvado al equipo)</p>
+
+        <!-- Teclado virtual para móvil o comodidad -->
+        <div class="numpad">
+            <button class="num-btn" onclick="addNumber('1')">1</button>
+            <button class="num-btn" onclick="addNumber('2')">2</button>
+            <button class="num-btn" onclick="addNumber('3')">3</button>
+            <button class="num-btn" onclick="addNumber('4')">4</button>
+            <button class="num-btn" onclick="addNumber('5')">5</button>
+            <button class="num-btn" onclick="addNumber('6')">6</button>
+            <button class="num-btn" onclick="addNumber('7')">7</button>
+            <button class="num-btn" onclick="addNumber('8')">8</button>
+            <button class="num-btn" onclick="addNumber('9')">9</button>
+            <button class="num-btn col-span-2" onclick="addNumber('0')">0</button>
+            <button class="num-btn bg-blue-600 border-none" onclick="checkCode()">↵</button>
+        </div>
+        
+        <div id="status-msg" class="mt-4 h-6 font-bold"></div>
+    </div>
+
+    <script>
+        const input = document.getElementById('code-input');
+        const display = document.getElementById('display-text');
+        const panel = document.getElementById('panel');
+        const statusMsg = document.getElementById('status-msg');
+        const CORRECT_CODE = "791";
+
+        function focusInput() {
+            input.focus();
+        }
+
+        function addNumber(num) {
+            if (input.value.length < 3) {
+                input.value += num;
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            display.innerText = input.value;
+            // Ocultar guiones según se escribe
+            const dashes = document.querySelectorAll('.digit-dash');
+            dashes.forEach((dash, index) => {
+                dash.style.opacity = index < input.value.length ? "0" : "1";
+            });
+        }
+
+        function checkCode() {
+            const val = input.value;
+            
+            if (val === CORRECT_CODE) {
+                // ÉXITO
+                panel.classList.remove('error-flash', 'shake');
+                panel.classList.add('success-flash');
+                statusMsg.innerText = "¡CÓDIGO CORRECTO! EQUIPO SALVADO";
+                statusMsg.className = "mt-4 h-6 font-bold text-green-500";
+                
+                // Efecto de celebración
+                document.body.style.backgroundColor = "#062006";
+                setTimeout(() => {
+                    document.body.style.backgroundColor = "#000000";
+                }, 2000);
+
+            } else {
+                // ERROR
+                panel.classList.remove('success-flash', 'shake');
+                // Trigger reflow para reiniciar animación
+                void panel.offsetWidth; 
+                panel.classList.add('error-flash', 'shake');
+                statusMsg.innerText = "CÓDIGO INCORRECTO";
+                statusMsg.className = "mt-4 h-6 font-bold text-red-500";
+                
+                // Limpiar después de un momento
+                setTimeout(() => {
+                    input.value = "";
+                    updateDisplay();
+                }, 800);
+            }
+        }
+
+        // Eventos de teclado real
+        input.addEventListener('input', (e) => {
+            // Solo permitir números
+            input.value = input.value.replace(/[^0-9]/g, '');
+            updateDisplay();
+            
+            if (input.value.length === 3) {
+                // Auto-check o esperar al Enter
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                checkCode();
+            } else if (e.key === 'Backspace') {
+                focusInput();
+            } else if (/[0-9]/.test(e.key)) {
+                focusInput();
+            }
+        });
+
+        // Iniciar con el foco listo
+        window.onload = focusInput;
+    </script>
+</body>
+</html>
